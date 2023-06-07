@@ -1,9 +1,8 @@
-// import { useState } from 'react'
-// import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import "./App.css";
+/* eslint-disable react/no-unescaped-entities */
 
-function App() {
-  // const [count, setCount] = useState(0)
+import "./HomePage.css";
+
+function HomePage() {
 
   return (
     <>
@@ -32,7 +31,7 @@ function App() {
 
         <p style={{ marginTop: "100px" }}>Try it now!</p>
         <div id="buttons-container" style={{ marginTop: "80px" }}>
-          <p style={{ fontSize: "15px" }}>
+          <p>
             <a href="/coordinates">Enter Point Coordinates</a>
           </p>
           <p>
@@ -76,4 +75,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;

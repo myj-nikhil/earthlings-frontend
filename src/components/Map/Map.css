@@ -44,3 +44,18 @@
       font-size: 10vw;
     }
   }
+
+  #MapDiv {
+  display: "flex";
+  height: "100%";
+  background-color: hsl(46, 100%, 80%);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: large;
+  text-align: left;
+  text-align: justify;
+  /* border: solid blueviolet 4px; */
+  } 
+  
+#home-button-map {
+    margin-top: 50px;
+}

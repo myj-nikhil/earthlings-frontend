@@ -1,0 +1,170 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    line-height: 1.5;
+    margin-top: 40px;
+    padding: 40px;  height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+    background-color: hsl(46, 100%, 80%);
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .home-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #0077be;
+    background-color: grey;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .home-button a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  input[type="tel"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    max-width: 250px;
+  }
+  
+  input[type="text"]:focus,
+  input[type="tel"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #0077ff;
+  }
+  
+  #map {
+    height: 500px;
+    width: 90%;
+  }
+  
+  button {
+    display: block;
+    padding: 10px;
+    background-color: #0077ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: center;
+  }
+  
+  button:hover {
+    background-color: #005ea6;
+  }
+  
+  #confirmation {
+    display: none;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  #confirmation h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  #confirmation p {
+    margin-bottom: 10px;
+  }
+  
+  #confirmation strong {
+    font-weight: bold;
+  }
+  
+  th,
+td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+td table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td table td {
+  border: none;
+  padding: 0;
+}
+
+#rainfall-table {
+  display: none;
+  border-spacing: 10px;
+}
+
+#hoverelement:hover #rainfall-table {
+   display:block;
+   align-self: center;
+   position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  overflow-y: auto;
+  overflow-x: auto;
+  max-width: 100%;
+  z-index: 1;
+  max-width: 240px;
+}
+
+#rainfall-table td {
+  padding-top: 5px;
+  padding-right: 10px;
+}
+
+#Total\ Rainfallval{
+  display: flex
+}
+
+#hoverelement {
+  margin-top:0px;
+  margin-left:7px;
+}
+#rainfall-table td {
+  padding-top: 5px;
+  padding-right: 10px;
+}
+
+#Total\ Rainfallval{
+  display: flex
+} 
+
+
+#form-map-div {
+  display: flex;
+  height: 100%;
+}

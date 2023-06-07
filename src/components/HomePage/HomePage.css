@@ -1,0 +1,19 @@
+body {
+    background-color: hsl(46, 100%, 80%);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    text-align: left;
+    text-align: justify;
+  }
+  p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-size: 15px;
+  }
+  #buttons-container {
+    margin-top: 80px;
+  }
+  #bottom {
+    position: relative;
+    margin-top: 155px;
+  }
