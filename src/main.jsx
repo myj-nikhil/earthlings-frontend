@@ -8,6 +8,7 @@ import HomePage from './components/HomePage/HomePage';
 import Form from './components/Form/Form';
 import EditForm from './components/EditForm/EdiFrom';
 import './index.css';
+import { Analytics } from '@vercel/analytics/react';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -25,5 +26,6 @@ root.render(
 
       </Routes>
     </Router>
+    <Analytics/>
   </React.StrictMode>
 );
