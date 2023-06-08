@@ -2,7 +2,7 @@
 
 import "./HomePage.css";
 
-function HomePage() {
+export default function HomePage() {
 
   return (
     <>
@@ -75,4 +75,3 @@ function HomePage() {
   );
 }
 
-export default HomePage;
