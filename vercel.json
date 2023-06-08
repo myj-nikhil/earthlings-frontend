@@ -4,5 +4,3 @@
     ]
   }
   
-
-//   This configuration ensures that all requests are redirected to the index.html file, allowing your React application to handle the routing internally.
