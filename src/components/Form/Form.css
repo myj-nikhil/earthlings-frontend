@@ -1,0 +1,110 @@
+  
+  #form-div {
+    line-height: 1.5;
+    margin-top: 40px;
+    padding: 40px;  height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+    background-color: hsl(46, 100%, 80%);
+    /* border: solid red 5px; */
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .home-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #0077be;
+    background-color: grey;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .home-button a {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  #input-div {
+    display: block;
+  }
+  
+  .labels {
+    display: block;
+    font-weight: bold;
+    margin: 0;
+    color: black;
+    width: 250px;
+    /* border: solid red 5px; */
+  }
+  
+  #from-name, #form-phone ,#uid{
+    display: block;
+    width: 230px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+  }
+  
+  #from-name:focus,
+  #form-phone:focus, #uid:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #0077ff;
+  }
+  
+  #map {
+    height: 500px;
+    width: 90%;
+  }
+  
+  button {
+    display: block;
+    padding: 10px;
+    background-color: #0077ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: center;
+  }
+  
+  button:hover {
+    background-color: #005ea6;
+  }
+  
+  #confirmation {
+    display: none;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  #confirmation h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  #confirmation p {
+    margin-bottom: 10px;
+  }
+  
+  #confirmation strong {
+    font-weight: bold;
+  }
+  
+
+
+#form-map-div {
+  display: flex;
+  height: 100%;
+}

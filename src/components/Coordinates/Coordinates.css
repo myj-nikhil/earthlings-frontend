@@ -1,0 +1,68 @@
+#page-div {
+ text-align: center;
+ font-size: large;
+}
+
+#maincontent {
+  margin-top: 150px;
+}
+
+
+#input-div {
+  display: flex;
+  flex-direction: row;
+}
+#coordinates-input {
+  margin: auto;
+}
+
+#info-text {
+  font-size: large;
+}
+
+#loading-text {
+  padding-top: 10px;
+}
+
+input[type="button"] {
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  border: none;
+  /* background-color: #4CAF50; */
+  background-color: grey;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #ffffff;
+  font-size: 12px;
+}
+
+#data-table {
+  align-items: center;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  /* border: solid blue 10px; */
+}
+
+#responsedata {
+/*   border: solid red 5px; */
+  margin-left: -40px;
+  padding-left: 0px;
+  width: 100%;
+}
+
+
+#addressdiv {
+/*   border: solid green 5px; */
+  margin: auto;
+  align-items: left;
+}
