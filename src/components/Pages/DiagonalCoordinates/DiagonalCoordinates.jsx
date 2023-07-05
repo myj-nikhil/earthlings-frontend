@@ -3,11 +3,16 @@ import { useState } from "react";
 import * as turf from "@turf/turf";
 import axios from "axios";
 import { DataComponent } from "../Map/Map";
+import LogoutButton from "../../Buttons/LogoutButton/LogoutButton";
+import HomeButton from "../../Buttons/HomeButton/HomeButton";
 
 export default function DiagonalCoordinates() {
+   // State variables
   const [isLoading, setIsLoading] = useState(false);
   const [responseData, setResponseData] = useState(null);
+  const eeApiUrl = import.meta.env.VITE_EE_API_URL;
 
+// To get all the data from the inputs and hit the API to get ee data.
   function getData() {
     const topLeftLat = parseFloat(
       document.getElementById("top-left-lat").value
@@ -48,14 +53,17 @@ export default function DiagonalCoordinates() {
       [topLeftLong, topLeftLat],
     ];
     setIsLoading(true);
-
+    
+    // Create a Turf.js polygon and calculate the area
     let turfPolygon = turf.polygon([coordinates]);
     let area = turf.area(turfPolygon);
     console.log(`Area of the polygon is ${area}`);
     const roundedArea = `${Math.round(area * 100) / 100} sq.m`;
-    const url = "https://ee-api-v3-33bpa3dkba-ue.a.run.app/all"; // Replace with the actual API endpoint URL
+
+    const url = `${eeApiUrl}/all`; 
     const postData = JSON.stringify(JSON.stringify(coordinates));
 
+    // Send a POST request to the API endpoint
     axios
       .post(url, postData)
       .then((response) => {
@@ -73,9 +81,9 @@ export default function DiagonalCoordinates() {
 
   return (
     <div id="diagcoord">
-      <div className="home-button">
-        <a href="/">Home</a>
-      </div>
+      <LogoutButton/>
+      <HomeButton />
+      {/* Input form */}
       <form>
         <label htmlFor="top-left-lat">Top-Left Latitude:</label>
         <input type="number" id="top-left-lat" name="top-left-lat" step="any" />
@@ -108,11 +116,15 @@ export default function DiagonalCoordinates() {
         />
         <br />
       </form>
+      
+      {/*Button to get the data*/}
       <button id="submit" type="submit" onClick={getData}>
         Get Data
       </button>
-      <div id="ans">
-        {isLoading && <p>Calculating...</p>}
+      
+      {/* Display the result */}
+      <div id="ans" style={{width:"45%",margin:"auto"}}>
+        {isLoading && <p style={{fontSize:"large"}}>Calculating...</p>}
         {!isLoading && responseData && (
           <DataComponent responseData={responseData} />
         )}

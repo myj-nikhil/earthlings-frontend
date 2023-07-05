@@ -6,12 +6,19 @@ import {
 } from "@react-google-maps/api";
 import { useState, useEffect } from "react";
 import * as turf from "@turf/turf";
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { render } from "react-dom";
 import { DataComponent } from "../Map/Map";
 import "./Form.css";
+import LogoutButton from "../../Buttons/LogoutButton/LogoutButton";
+import HomeButton from "../../Buttons/HomeButton/HomeButton";
+
+
 
 const mapKey = import.meta.env.VITE_MAPS_API_KEY;
+const eeApiUrl = import.meta.env.VITE_EE_API_URL;
+const dbApiUrl = import.meta.env.VITE_DB_API_URL;
 
 let roundedArea;
 
@@ -35,13 +42,14 @@ const onLoad = (drawingManager) => {
 };
 
 export default function Form() {
+  const { user } = useAuth0();
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [responseData, setResponseData] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
   const [, setGeojsonLayer] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isconfirmed, setIsConfirmed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);// this state tells us if the request (to the earthengine api)is being fetched 
+  const [isconfirmed, setIsConfirmed] = useState(false); // this state is to determined whether the user confirmed the details
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [isEditable, setIsEditable] = useState(true);
@@ -132,7 +140,7 @@ export default function Form() {
   useEffect(() => {
     if (map) {
       // Load GeoJSON data
-      const geojsonUrl = "https://db-api-v2-qw2rp233lq-ue.a.run.app/geojson";
+      const geojsonUrl = `${dbApiUrl}/geojson`;
       const loadGeoJson = async () => {
         const response = await fetch(geojsonUrl);
         const geojsonData = await response.json();
@@ -215,7 +223,7 @@ export default function Form() {
       let area = turf.area(turfPolygon);
       console.log(`Area of the polygon is ${area}`);
       roundedArea = `${Math.round(area * 100) / 100} sq.m`;
-      const url = "https://ee-api-v3-33bpa3dkba-ue.a.run.app/all"; // Replace with the actual API endpoint URL
+      const url = `${eeApiUrl}/all`;
       const postData = JSON.stringify(JSON.stringify(coordinates));
 
       axios
@@ -258,8 +266,8 @@ export default function Form() {
             </p>
             <p>
               <strong>Data: </strong>
-              {isLoading && <p>Calculating...</p>}
-              <div id="responsedata">
+              {isLoading && <p style={{fontSize:"large"}}>Calculating...</p>}
+              <div id="responsedata" style={{width:"50%",marginLeft:"180px"}}>
                 {responseData && <DataComponent responseData={responseData}/>}
               </div>
             </p>
@@ -276,6 +284,7 @@ export default function Form() {
     const userData = {
       name: name,
       phone: phone,
+      auth0_id: user.sub,
       geojson: {
         type: "Feature",
         properties: {
@@ -297,7 +306,7 @@ export default function Form() {
     // submit the data to the server
     // ...
     // send a POST request to the API endpoint
-    fetch("https://db-api-v2-qw2rp233lq-ue.a.run.app/users", {
+    fetch(`${dbApiUrl}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -307,6 +316,7 @@ export default function Form() {
       .then((response) => {
         if (response.ok) {
           console.log("User data submitted successfully!");
+          console.log(response);
           console.log(response.text().value);
           console.log(response.status);
           // reset the form and map
@@ -336,10 +346,8 @@ export default function Form() {
     <>
       {isLoaded && (
         <div id="form-div">
-          <div className="home-button">
-            <a href="/">Home</a>
-          </div>
-
+          <HomeButton />
+          <LogoutButton/> 
           <div id="input-div">
             <label className="labels" htmlFor="from-name">Name:</label>
             <input  id="from-name" value={name} onChange={handleNameChange} required pattern="[a-zA-Z ]+" readOnly = {!isEditable} />

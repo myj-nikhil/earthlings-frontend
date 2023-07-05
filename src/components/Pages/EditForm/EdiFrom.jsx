@@ -1,3 +1,7 @@
+//This page is to change or edit land boundary of the user. First the user enters the land ownership details and clicks confirm , now the boundnary coordinates 
+// and Earth Engine data is displayed as a preview. Now if user is satisfied ,they can proceed by clicking on 'Submit Data'(which submits to our database 
+// and updates it) else they can click on 'Edit data'  and edit the details.
+
 import {
   GoogleMap,
   DrawingManager,
@@ -7,15 +11,25 @@ import {
 import { useState, useEffect } from "react";
 import * as turf from "@turf/turf";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 import { render } from "react-dom";
 import { DataComponent } from "../Map/Map";
-import "../Form/Form.css";
+import LogoutButton from "../../Buttons/LogoutButton/LogoutButton";
+import HomeButton from "../../Buttons/HomeButton/HomeButton";
 
+//This page is to edit details of users
 
 const mapKey = import.meta.env.VITE_MAPS_API_KEY;
+const eeApiUrl = import.meta.env.VITE_EE_API_URL;
+const dbApiUrl = import.meta.env.VITE_DB_API_URL;
 
-let roundedArea, userData, userCoordinates, postCoordinates = null;
 
+let roundedArea,
+  userData,
+  userCoordinates,
+  postCoordinates = null;
+
+  // Map config
 const mapArguments = {
   containerStyle: {
     width: "90%",
@@ -36,21 +50,24 @@ const onLoad = (drawingManager) => {
 };
 
 export default function EditForm() {
-  const [map, setMap] = useState(null);
+  const [map, setMap] = useState(null); // This state tells us if the map is loaded
   const [markers, setMarkers] = useState([]);
-  const [responseData, setResponseData] = useState(null);
-  const [coordinates, setCoordinates] = useState([]);
-  const [, setGeojsonLayer] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isconfirmed, setIsConfirmed] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [isEditable, setIsEditable] = useState(true);
-  const [isFetched, setIsFetched] = useState(false);
-  const [isUserExists, setIsUserExists] = useState(false);
+  const [responseData, setResponseData] = useState(null);  // Reponse data from the API which calculates EE data
+  const [coordinates, setCoordinates] = useState([]); // Input coordinates
+  const [, setGeojsonLayer] = useState(null); 
+  const [isFetchingEEData, setisFetchingEEData] = useState(false); 
+  const [isconfirmed, setIsConfirmed] = useState(false);  // If the confirm button is clicked
+  const [name, setName] = useState(""); //value of name input field 
+  const [phone, setPhone] = useState(""); //value of phone input field 
+  const [isEditable, setIsEditable] = useState(true); // This controls the editablity of  our input fields.
+  const [isFetchedFromDB, setisFetchedFromDB] = useState(false); // This tells us if the data is fetched from the DB.
+  const [isUserExists, setIsUserExists] = useState(false); // This tells us if user exists in the DB.
   const [userID, setUserID] = useState(0);
-  const [isFetching, setIsFetching] = useState(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 24, lng: 80 })
+  // const [isFetchingFromDB, setisFetchingFromDB] = useState(false);
+  const [mapCenter, setMapCenter] = useState({ lat: 24, lng: 80 });
+
+  const { user } = useAuth0();
+
 
   // Function to handle changes in the input box
   const handleNameChange = (event) => {
@@ -137,14 +154,14 @@ export default function EditForm() {
   useEffect(() => {
     if (map) {
       // Load GeoJSON data
-      const geojsonUrl = "https://db-api-v2-qw2rp233lq-ue.a.run.app/geojson";
+      const geojsonUrl = `${dbApiUrl}/geojson`;
       const loadGeoJson = async () => {
         const response = await fetch(geojsonUrl);
         const geojsonData = await response.json();
         // Create the GeoJSON layer
         const layer = new window.google.maps.Data();
         layer.addGeoJson(geojsonData);
-        console.log("geojson data loaded")
+        console.log("geojson data loaded");
 
         // Set the style for the GeoJSON layer
         layer.setStyle({
@@ -210,53 +227,52 @@ export default function EditForm() {
 
   const confirmData = () => {
     console.log("button clicked");
-    console.log(`length of coordinates is  ${coordinates.length}`)
-    console.log(name)
-    console.log(phone)
-    console.log(coordinates)
+    console.log(`length of coordinates is  ${coordinates.length}`);
+    console.log(name);
+    console.log(phone);
+    console.log(coordinates);
     if (name && phone) {
       setIsConfirmed(true);
       setIsEditable(false);
       console.log("Coordinates" + coordinates);
-      setIsLoading(true);
+      setisFetchingEEData(true);
       postCoordinates = coordinates;
-      if(coordinates.length < 3){
-        console.log("No coordinates")
+      if (coordinates.length < 3) { // That means the user didn't update the land boundary
+        console.log("No coordinates");
         postCoordinates = userCoordinates;
-        setResponseData(userData.geojson.properties.ee_data);
-        setIsLoading(false);
+        setResponseData(userData.geojson.properties.ee_data); // Set EEdata as the data already available in the DataBase.
+        setisFetchingEEData(false);
         roundedArea = userData.geojson.properties.area;
-      }
-      else {
-        console.log(`post coordinates ${postCoordinates}`)
-      let turfPolygon = turf.polygon([postCoordinates]);
-      let area = turf.area(turfPolygon);
-      console.log(`Area of the polygon is ${area}`);
-      roundedArea = `${Math.round(area * 100) / 100} sq.m`;
-      const url = "https://ee-api-v3-33bpa3dkba-ue.a.run.app/all"; // Replace with the actual API endpoint URL
-      const postData = JSON.stringify(JSON.stringify(postCoordinates));
+      } else {
+        // If the user has updated the land boundary
+        console.log(`post coordinates ${postCoordinates}`);
+        // Calculate the area of the land
+        let turfPolygon = turf.polygon([postCoordinates]);
+        let area = turf.area(turfPolygon);
+        console.log(`Area of the polygon is ${area}`);
+        roundedArea = `${Math.round(area * 100) / 100} sq.m`;
+        const url = `${eeApiUrl}/all`; 
+        // Send the boundary coordinates to our API  whch calculates Earth Engine data and get new Earth Engine data for the land.
+        const postData = JSON.stringify(JSON.stringify(postCoordinates));
 
-      axios
-        .post(url, postData)
-        .then((response) => {
-          const responseData = response.data;
-          responseData.Area = { Area: roundedArea };
-          setResponseData(responseData);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          setIsLoading(false);
-        });
+        axios
+          .post(url, postData)
+          .then((response) => {
+            const responseData = response.data;
+            responseData.Area = { Area: roundedArea };
+            setResponseData(responseData);
+            setisFetchingEEData(false);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            setisFetchingEEData(false);
+          });
       }
-    } 
-    
-
-    else {
+    } else {
       alert("Please fill all the details and draw a shape");
     }
   };
-
+  
   function Confirmation(props) {
     const name = props.name;
     const phone = props.phone;
@@ -280,8 +296,11 @@ export default function EditForm() {
             </p>
             <p>
               <strong>Data: </strong>
-              {isLoading && <p>Calculating...</p>}
-              <div id="responsedata">
+              {isFetchingEEData && <p style={{ fontSize: "large" }}>Calculating...</p>}
+              <div
+                id="responsedata"
+                style={{ width: "45%", marginLeft: "180px" }}
+              >
                 {responseData && <DataComponent responseData={responseData} />}
               </div>
             </p>
@@ -292,7 +311,6 @@ export default function EditForm() {
   }
 
   function submitToServer() {
-    // console.log(area);
     const userData = {
       name: name,
       phone: phone,
@@ -317,7 +335,7 @@ export default function EditForm() {
     // submit the data to the server
     // ...
     // send a POST request to the API endpoint
-    fetch(`https://db-api-v2-qw2rp233lq-ue.a.run.app/users/${userID}`, {
+    fetch(`${dbApiUrl}/users/${userID}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -326,19 +344,16 @@ export default function EditForm() {
     })
       .then((response) => {
         if (response.ok) {
-          console.log("User data updated successfully!");
+          alert("User data updated successfully!");
           console.log(response.text().value);
           console.log(response.status);
           // reset the form and map
           document.getElementById("name").value = "";
           document.getElementById("phone").value = "";
-          // map.setMap(null);
-          // polygon.setPath([]);
-          // document.getElementById("confirmation").style.display = "none";
           setIsConfirmed(false);
           setIsEditable(true);
-          setName('');
-          setPhone('');
+          setName("");
+          setPhone("");
           setCoordinates([]);
           setResponseData(null);
           alert("Data Updated successfully!");
@@ -350,90 +365,81 @@ export default function EditForm() {
         console.log("Error updating user data:", error);
       });
   }
-let uid;
+  
   function fetchDetails() {
-    setIsFetching(true)
-    setUserID(document.getElementById("uid").value);
-    uid = document.getElementById("uid").value;
-    console.log(typeof userID);
-    let apiUrl = `https://db-api-v2-qw2rp233lq-ue.a.run.app/users/${uid}`;
-    // let apiUrl =`http://localhost:3000/users/${userID}`;
-    fetch(apiUrl, {
+    // setisFetchingFromDB(true);
+    let apiUrl = `${dbApiUrl}/users/auth0/${user.sub}`
+    fetch(apiUrl, { 
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-      mode: "cors",
+        "Content-Type": "application/json"   
+      }
     })
       .then((response) => response.json())
       .then((data) => {
-         userData = data[0];
-        console.log(userData);
-        setIsFetched(true);
-        setIsFetching(false);
+        console.log(data)
+        userData = data[0];
+        console.log(`type of user data ${userData}`);
+        setisFetchedFromDB(true);
+        // setisFetchingFromDB(false);
         if (typeof userData == "undefined") {
           setIsUserExists(false);
-        }
-        else {
-            setIsUserExists(true);
-            userCoordinates = userData.geojson.geometry.coordinates[0];
-            console.log(coordinates);
-            if (coordinates.length == 0) {
-            //   setResponseData(userData.geojson.properties.ee_data)
-            }
-            // document.getElementById("edit-details").style.display = "block";
-            console.log("pf", userData.geojson);
-    
-            // Initialize variables to hold the sum of latitudes and longitudes
-            let sumLat = 0;
-            let sumLng = 0;
-    
-            // Loop through each coordinate pair and add to the sum
-            for (let i = 0; i < userCoordinates.length; i++) {
-              sumLat += userCoordinates[i][1];
-              sumLng += userCoordinates[i][0];
-            }
-    
-            // Calculate the average latitude and longitude
-            const avgLat = sumLat / userCoordinates.length;
-            const avgLng = sumLng / userCoordinates.length;
+          console.log('User data is undefined')
+        } else {
+          setUserID(userData.id);
+          console.log("id is ",userData.id)
+          setIsUserExists(true);
+          userCoordinates = userData.geojson.geometry.coordinates[0];
+          console.log(coordinates);
 
-            setMapCenter({ lat: avgLat, lng: avgLng });
-            setName(userData.name);
-            console.log(`User Name is ${userData.name}`)
-            setPhone(userData.phone);
-            console.log(`User phone is ${userData.phone}`)
-            // Log the center point
-            console.log(`Center point: (${avgLng}, ${avgLat})`);
-    
- 
-                    }
+          // Initialize variables to hold the sum of latitudes and longitudes
+          let sumLat = 0;
+          let sumLng = 0;
+
+          // Loop through each coordinate pair and add to the sum
+          for (let i = 0; i < userCoordinates.length; i++) {
+            sumLat += userCoordinates[i][1];
+            sumLng += userCoordinates[i][0];
+          }
+
+          // Calculate the average latitude and longitude
+          const avgLat = sumLat / userCoordinates.length;
+          const avgLng = sumLng / userCoordinates.length;
+
+          setMapCenter({ lat: avgLat, lng: avgLng });
+          setName(userData.name);
+          console.log(`User Name is ${userData.name}`);
+          setPhone(userData.phone);
+          console.log(`User phone is ${userData.phone}`);
+          // Log the center point
+          console.log(`Center point: (${avgLng}, ${avgLat})`);
+        }
       });
   }
+
+
 
   return (
     <>
       {isLoaded && (
         <div id="form-div">
-          <div className="home-button">
-            <a href="/">Home</a>
-          </div>
-
-          <label className="labels" htmlFor="uid">Enter ID:</label>
-          <input  id="uid" required pattern="[a-zA-Z ]+" />
+          <HomeButton />
+          <LogoutButton />
+          <label className="labels" htmlFor="uid">
+            Enter ID:
+          </label>
+          <input id="uid" required pattern="[a-zA-Z ]+" value={user.sub}/>
 
           <div id="fetch details" style={{ marginTop: "20px" }}>
             <button onClick={fetchDetails}>Fetch Details</button>
           </div>
 
-          {isFetched && isUserExists && !isFetching && (
+          {isFetchedFromDB && isUserExists &&  (
             <div>
               <div id="input-div">
-                <label htmlFor="name">Name:</label>
+                <label htmlFor="from-name">Name:</label>
                 <input
-                  type="text"
-                  id="name"
+                  id="from-name" // removing type as text
                   value={name}
                   onChange={handleNameChange}
                   required
@@ -441,10 +447,10 @@ let uid;
                   readOnly={!isEditable}
                 />
 
-                <label htmlFor="phone">Phone:</label>
+                <label htmlFor="form-phone">Phone:</label>
                 <input
                   type="tel"
-                  id="phone"
+                  id="form-phone"
                   required
                   pattern="[0-9]{10}"
                   maxLength={10}
@@ -536,21 +542,33 @@ let uid;
                 </GoogleMap>
               </div>
               <div id="first-submit-button" style={{ marginTop: "20px" }}>
+               
+               {/*Button to confirm details*/}
+
                 <button
                   onClick={() => {
                     confirmData();
                   }}
                 >
                   Confirm Data
+               
                 </button>
+               
+                {/*Confirmation Component*/}
+               
                 <Confirmation
                   name={name}
                   phone={phone}
                   coordinatesData={postCoordinates}
                 />
+                
+                {/*If the responseData is set display this div*/}
                 {responseData && (
                   <>
+                    {/*Button to submit details */}
                     <button onClick={submitToServer}>Submit Data</button>
+                    
+                    {/*Button to edit details */}
                     <button
                       onClick={() => {
                         setIsConfirmed(false);
@@ -569,11 +587,13 @@ let uid;
               </div>
             </div>
           )}
-          {isFetched && !isUserExists && !isFetching && (
+          {/*Display this div if user didnt create a listing */}
+          {isFetchedFromDB && !isUserExists &&  (
             <div id="error-div">
-                <p> User Details with id: {userID} not found</p>
+              <p> User Details with id: &quot; {user.sub} &quot; not found</p>
             </div>
           )}
+
         </div>
       )}
     </>

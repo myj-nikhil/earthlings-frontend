@@ -1,12 +1,14 @@
 /* eslint-disable react/no-unescaped-entities */
 
 import "./HomePage.css";
-
+import LogoutButton from "../../Buttons/LogoutButton/LogoutButton";
+//This is the home page of our website
 export default function HomePage() {
 
   return (
     <>
       <div>
+        <LogoutButton/>
         <p>
           ProjectXYZ is an automated easy to use real estate website that uses
           google's earth engine to populate listings with satellite data in
@@ -43,10 +45,13 @@ export default function HomePage() {
             </a>
           </p>
           <p>
-            <a href="/form">Enter details</a>
+            <a href="/form">List a property</a>
           </p>
           <p>
-            <a href="/edit-form">Edit details</a>
+            <a href="/edit-form">Edit property details</a>
+          </p>
+          <p>
+            <a href="/edit-details">Edit profile details</a>
           </p>
         </div>
         <div id="bottom" style={{ position: "relative", marginTop: "155px" }}>

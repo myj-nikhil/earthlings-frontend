@@ -9,12 +9,15 @@ import {
 import "./Map.css";
 import * as turf from "@turf/turf";
 import axios from "axios";
+import LogoutButton from "../../Buttons/LogoutButton/LogoutButton";
 
 const mapKey = import.meta.env.VITE_MAPS_API_KEY;
+const eeApiUrl = import.meta.env.VITE_EE_API_URL;
+const dbApiUrl = import.meta.env.VITE_DB_API_URL;
 
 const mapArguments = {
   containerStyle: {
-    width: "60vw",
+    width: "53vw",
     height: "850px",
     margin: "0px",
     padding: "0px",
@@ -37,7 +40,7 @@ export function DataComponent({ responseData }) {
 
     // Create header row
     const headerRow = (
-      <tr>
+      <tr key="header">
         <th>Category</th>
         <th>Parameter</th>
         <th>Value</th>
@@ -81,39 +84,47 @@ export function DataComponent({ responseData }) {
             }
 
             let hoverText = (
-              <p id="hoverelement">
-                &#x24D8;
+              <>
+                <p id="hoverelement">&#x24D8;</p>
                 <table id="rainfall-table">
                   <tbody>{subsubTableRows1}</tbody>
                 </table>
-              </p>
+              </>
             );
             subCell2 = (
-              <td>
+              <td id="rainfall-data-td">
                 {subValue}
                 {hoverText}
               </td>
             );
           }
 
-          let subRow1 = <tr key={subKey}>{subCell1}</tr>;
-          let subRow2 = <tr key={`${subKey}val`}>{subCell2}</tr>;
+          let subRow1 = (
+            <tr key={subKey} id={subKey}>
+              {subCell1}
+            </tr>
+          );
+          let subRow2 = (
+            <tr key={`${subKey}val`} id={`${subKey}val`}>
+              {subCell2}
+            </tr>
+          );
 
           subTableRows1.push(subRow1);
           subTableRows2.push(subRow2);
         }
 
         const subTable1 = <tbody>{subTableRows1}</tbody>;
-        const subTable2 = <tbody id={key}>{subTableRows2}</tbody>;
+        const subTable2 = <tbody>{subTableRows2}</tbody>;
 
         const cell2 = (
           <td>
-            <table>{subTable1}</table>
+            <table id={`${key}key-table`}>{subTable1}</table>
           </td>
         );
         const cell3 = (
           <td>
-            <table id={key}>{subTable2}</table>
+            <table id={`${key}value-table`}>{subTable2}</table>
           </td>
         );
 
@@ -227,7 +238,7 @@ function Map() {
       let area = turf.area(turfPolygon);
       console.log(`Area of the polygon is ${area}`);
       const roundedArea = `${Math.round(area * 100) / 100} sq.m`;
-      const url = "https://ee-api-v3-33bpa3dkba-ue.a.run.app/all"; // Replace with the actual API endpoint URL
+      const url = `${eeApiUrl}/all`; // Replace with the actual API endpoint URL
       const postData = JSON.stringify(JSON.stringify(coordinates));
 
       axios
@@ -259,7 +270,7 @@ function Map() {
   useEffect(() => {
     if (map) {
       // Load GeoJSON data
-      const geojsonUrl = "https://db-api-v2-qw2rp233lq-ue.a.run.app/geojson";
+      const geojsonUrl = `${dbApiUrl}/geojson`;
       const loadGeoJson = async () => {
         const response = await fetch(geojsonUrl);
         const geojsonData = await response.json();
@@ -315,7 +326,6 @@ function Map() {
             }
           });
 
-          // Add click event listener for the button
         });
 
         // Set the GeoJSON layer on the map
@@ -400,7 +410,10 @@ function Map() {
 
                 for (let i = 0; i < path.getLength(); i++) {
                   let latLng = path.getAt(i);
-                  setCoordinates((prevCoordinates) => [...prevCoordinates,[latLng.lng(), latLng.lat()],]);
+                  setCoordinates((prevCoordinates) => [
+                    ...prevCoordinates,
+                    [latLng.lng(), latLng.lat()],
+                  ]);
                 }
 
                 console.log("Final coordinates: ", coordinates);
@@ -423,6 +436,7 @@ function Map() {
               // border: "solid white 5px"
             }}
           >
+            {/*Button to submit data*/}
             <button
               type="submit"
               style={{
@@ -438,11 +452,19 @@ function Map() {
             >
               Get Data
             </button>
-            {isLoading && <p>Calculating...</p>}
-            <div id="responsedata" style={{width:"100%", padding:"0px",margin:"0px"}}>
+
+            {/* When earth engine data is being fetched from the api, display this is div */}
+            {isLoading && <p style={{ fontSize: "large" }}>Calculating...</p>}
+
+            {/* Display respinse data after it is fetched from the earth engine data*/}
+            <div
+              id="responsedata"
+              style={{ width: "100%", padding: "0px", margin: "5px" }}
+            >
               {responseData && <DataComponent responseData={responseData} />}
             </div>
           </div>
+          <LogoutButton />
         </div>
       )}
     </>

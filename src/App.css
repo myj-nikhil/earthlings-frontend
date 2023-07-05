@@ -57,7 +57,7 @@ td table td {
   border-spacing: 10px;
 }
 
-#hoverelement:hover #rainfall-table {
+#hoverelement:hover ~ #rainfall-table {
   display: block;
   align-self: center;
   position: absolute;
@@ -90,7 +90,6 @@ td table td {
   padding-right: 10px;
 }
 
-#Total\ Rainfallval {
-  background-color: red;
-  border: solid red 5px;
+#rainfall-data-td {
+  display: flex;
 }
