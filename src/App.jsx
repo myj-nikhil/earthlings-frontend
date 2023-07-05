@@ -36,7 +36,7 @@ const Auth0ProviderWithRedirectCallback = ({ children, ...props }) => {
 };
 
 export default function App() {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [, setIsInitialized] = useState(false);
 
   useEffect(() => {
     fetchData();
